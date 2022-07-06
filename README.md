@@ -1,1 +1,1 @@
-# gaship-batch
+# gaship-gateway
