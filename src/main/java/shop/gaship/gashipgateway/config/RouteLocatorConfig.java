@@ -13,6 +13,12 @@ public class RouteLocatorConfig {
         return routeLocatorBuilder.routes()
                 .route(p -> p.path("/securities/**")
                         .uri("http://172.30.1.23:7071"))
+                .route(p -> p.path("/payments/**")
+                        .uri("http://172.30.1.23:7073"))
+                .route(p -> p.path("/schedulers/**")
+                        .uri("http://172.30.1.23:7074"))
+                .route(p -> p.path("/**")
+                        .uri("http://172.30.1.23:7072"))
                 .build();
     }
 }
