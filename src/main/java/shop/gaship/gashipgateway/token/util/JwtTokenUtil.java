@@ -4,41 +4,39 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import java.security.Key;
-import java.util.Date;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import shop.gaship.gashipgateway.token.store.Payload;
 
 /**
- * packageName    : shop.gaship.gashipgateway.token.util fileName       : JwtTokenUtil author
- *  : jo date           : 2022/07/15 description    : ===========================================================
- * DATE              AUTHOR             NOTE -----------------------------------------------------------
- * 2022/07/15        jo       최초 생성
+ * 설명작성란
+ *
+ * @author 조재철
+ * @since 1.0
  */
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class JwtTokenUtil {
 
     private final Key createKey;
 
-    public Date getExpiredDate(String token) {
-        Jws<Claims> claims = Jwts.parser().setSigningKey(createKey).parseClaimsJws(token);
-
-        return claims.getBody().getExpiration();
+    private Jws<Claims> getClaims(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(createKey)
+            .build()
+            .parseClaimsJws(token);
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(createKey).parseClaimsJws(token);
-
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    public int getUserNum(String token) {
-        return Integer.parseInt(
-            Jwts.parserBuilder().setSigningKey(createKey).build().parseClaimsJws(token).getBody()
-                .getSubject());
+    /**
+     * Gets payload from token.
+     *
+     * @param token the token
+     * @return the payload from token
+     */
+    public Payload getPayloadFromToken(String token) {
+        Long identificationNumber = getClaims(token).getBody().get("id", Long.class);
+        List<String> role = getClaims(token).getBody().get("role", List.class);
+        return new Payload(identificationNumber, role);
     }
 }
