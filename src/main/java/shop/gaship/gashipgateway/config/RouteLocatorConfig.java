@@ -21,7 +21,6 @@ import shop.gaship.gashipgateway.token.util.JwtTokenUtil;
 @Configuration
 @ConfigurationProperties(prefix = "gaship-server-url")
 public class RouteLocatorConfig {
-
     private String auth;
     private String shoppingmall;
     private String payments;

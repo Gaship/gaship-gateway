@@ -1,5 +1,11 @@
 package shop.gaship.gashipgateway.config;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -9,6 +15,7 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import shop.gaship.gashipgateway.config.exceptions.NoResponseDataException;
 
 /**
  * Redis와 관련된 설정을 위한 class 입니다.
@@ -70,8 +77,16 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory(
         AuthenticationConfig authenticationConfig) {
-        String secretHost = authenticationConfig.findSecretDataFromSecureKeyManager(host);
-        String secretPassword = authenticationConfig.findSecretDataFromSecureKeyManager(password);
+        String secretHost;
+        String secretPassword;
+
+        try{
+            secretHost = authenticationConfig.findSecretDataFromSecureKeyManager(host);
+            secretPassword = authenticationConfig.findSecretDataFromSecureKeyManager(password);
+        } catch (CertificateException| NoSuchAlgorithmException| KeyStoreException|
+            UnrecoverableKeyException| IOException| KeyManagementException e){
+            throw new NoResponseDataException("NHN Secucre Excpetion");
+        }
 
         RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration();
         configuration.setHostName(secretHost);
