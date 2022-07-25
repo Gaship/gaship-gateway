@@ -8,7 +8,5 @@ public class GashipGatewayApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(GashipGatewayApplication.class, args);
-
     }
-
 }

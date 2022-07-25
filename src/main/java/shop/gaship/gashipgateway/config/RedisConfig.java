@@ -1,7 +1,5 @@
 package shop.gaship.gashipgateway.config;
 
-import org.springframework.beans.factory.BeanClassLoaderAware;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,7 +18,8 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  */
 @Configuration
 @ConfigurationProperties(prefix = "redis")
-public class RedisConfig implements BeanClassLoaderAware {
+public class RedisConfig {
+
     private String host;
 
     private int port;
@@ -28,8 +27,6 @@ public class RedisConfig implements BeanClassLoaderAware {
     private String password;
 
     private int database;
-
-    private ClassLoader classLoader;
 
     public String getHost() {
         return host;
@@ -64,8 +61,15 @@ public class RedisConfig implements BeanClassLoaderAware {
     }
 
 
+    /**
+     * redis 연동을 위한 연결 설정을 한 Lettuce를 반환하는 빈등록 하는 메서드. (Redis Client로 Lettuce를 사용)
+     *
+     * @param authenticationConfig
+     * @return
+     */
     @Bean
-    public RedisConnectionFactory redisConnectionFactory(AuthenticationConfig authenticationConfig) {
+    public RedisConnectionFactory redisConnectionFactory(
+        AuthenticationConfig authenticationConfig) {
         String secretHost = authenticationConfig.findSecretDataFromSecureKeyManager(host);
         String secretPassword = authenticationConfig.findSecretDataFromSecureKeyManager(password);
 
@@ -78,6 +82,11 @@ public class RedisConfig implements BeanClassLoaderAware {
         return new LettuceConnectionFactory(configuration);
     }
 
+    /**
+     * RedisTemplate 관련 설정을 하여 빈 등록하는 메서드이다.
+     *
+     * @return
+     */
     @Bean
     public RedisTemplate<?, ?> redisTemplate() {
         RedisTemplate<byte[], byte[]> redisTemplate = new RedisTemplate<>();
@@ -88,10 +97,5 @@ public class RedisConfig implements BeanClassLoaderAware {
         redisTemplate.setHashValueSerializer(new GenericJackson2JsonRedisSerializer());
 
         return redisTemplate;
-    }
-
-    @Override
-    public void setBeanClassLoader(ClassLoader classLoader) {
-        this.classLoader = classLoader;
     }
 }

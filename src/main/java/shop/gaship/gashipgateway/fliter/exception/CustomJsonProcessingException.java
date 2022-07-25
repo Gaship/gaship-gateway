@@ -9,5 +9,6 @@ package shop.gaship.gashipgateway.fliter.exception;
 public class CustomJsonProcessingException extends RuntimeException {
 
     public CustomJsonProcessingException(String message) {
+        super(message);
     }
 }

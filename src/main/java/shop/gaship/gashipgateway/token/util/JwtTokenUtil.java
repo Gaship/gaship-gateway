@@ -29,7 +29,7 @@ public class JwtTokenUtil {
     }
 
     /**
-     * Gets payload from token.
+     * Jwt에서 Payload 정보를 가져오기 위한 메서드.
      *
      * @param token the token
      * @return the payload from token

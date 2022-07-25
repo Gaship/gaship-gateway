@@ -1,15 +1,15 @@
-package shop.gaship.gashipgateway.config.dto;
+package shop.gaship.gashipgateway.config.dto.response;
 
 import lombok.Getter;
 
 /**
- * 설명작성란
+ * SecureKey에 대한 정보를 받고 다른 객체에 전달하기 위한 Dto입니다.
  *
  * @author 조재철
  * @since 1.0
  */
 @Getter
-public class SecureKeyResponse {
+public class SecureKeyResponseDto {
 
     private Header header;
 

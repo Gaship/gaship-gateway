@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
- * 설명작성란
+ * Jwt의 payload에 담기는 정보를 가지는 클래스.
  *
  * @author 조재철
  * @since 1.0
@@ -13,6 +13,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class Payload {
+
     private Long identificationNumber;
     private List<String> role;
 }
