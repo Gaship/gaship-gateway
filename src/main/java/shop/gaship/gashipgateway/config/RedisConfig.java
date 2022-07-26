@@ -67,7 +67,6 @@ public class RedisConfig {
         this.database = database;
     }
 
-
     /**
      * redis 연동을 위한 연결 설정을 한 Lettuce를 반환하는 빈등록 하는 메서드. (Redis Client로 Lettuce를 사용)
      *
@@ -80,11 +79,11 @@ public class RedisConfig {
         String secretHost;
         String secretPassword;
 
-        try{
+        try {
             secretHost = authenticationConfig.findSecretDataFromSecureKeyManager(host);
             secretPassword = authenticationConfig.findSecretDataFromSecureKeyManager(password);
-        } catch (CertificateException| NoSuchAlgorithmException| KeyStoreException|
-            UnrecoverableKeyException| IOException| KeyManagementException e){
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException |
+            UnrecoverableKeyException | IOException | KeyManagementException e) {
             throw new NoResponseDataException("NHN Secucre Excpetion");
         }
 
