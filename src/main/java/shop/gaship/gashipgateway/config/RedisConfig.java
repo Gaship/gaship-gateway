@@ -18,7 +18,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import shop.gaship.gashipgateway.config.exceptions.NoResponseDataException;
 
 /**
- * Redis와 관련된 설정을 위한 class 입니다.
+ * Redis와 관련된 설정을 위한 class.
  *
  * @author 조재철
  * @since 1.0
@@ -69,22 +69,22 @@ public class RedisConfig {
 
 
     /**
-     * redis 연동을 위한 연결 설정을 한 Lettuce를 반환하는 빈등록 하는 메서드. (Redis Client로 Lettuce를 사용)
+     * redis 연동을 위한 연결 설정을 한 Lettuce를 반환하는 빈등록 하는 메서드.
      *
-     * @param authenticationConfig
-     * @return
+     * @param authenticationConfig Redis 연동을 위해 필요한 설정 정보들.
+     * @return Redis Client로 Lettuce를 반환.
      */
     @Bean
     public RedisConnectionFactory redisConnectionFactory(
-        AuthenticationConfig authenticationConfig) {
+            AuthenticationConfig authenticationConfig) {
         String secretHost;
         String secretPassword;
 
-        try{
+        try {
             secretHost = authenticationConfig.findSecretDataFromSecureKeyManager(host);
             secretPassword = authenticationConfig.findSecretDataFromSecureKeyManager(password);
-        } catch (CertificateException| NoSuchAlgorithmException| KeyStoreException|
-            UnrecoverableKeyException| IOException| KeyManagementException e){
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
+                | UnrecoverableKeyException | IOException | KeyManagementException e) {
             throw new NoResponseDataException("NHN Secucre Excpetion");
         }
 
@@ -98,9 +98,9 @@ public class RedisConfig {
     }
 
     /**
-     * RedisTemplate 관련 설정을 하여 빈 등록하는 메서드이다.
+     * Redis Command 를 도와주는 Template 관련 설정을 하여 빈 등록하는 메서드이다.
      *
-     * @return
+     * @return RedisTemplate을 반환.
      */
     @Bean
     public RedisTemplate<?, ?> redisTemplate() {

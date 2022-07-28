@@ -23,8 +23,14 @@ import shop.gaship.gashipgateway.token.util.JwtTokenUtil;
 @Slf4j
 @Component
 public class RequestFilter extends
-    AbstractGatewayFilterFactory<Config> {
+        AbstractGatewayFilterFactory<Config> {
 
+    /**
+     * Filter에서 사용되는 필요한 설정을 담은 클래스.
+     *
+     * @author 조재철
+     * @since 1.0
+     */
     public static class Config {
 
         private final RedisTemplate redisTemplate;
@@ -42,17 +48,17 @@ public class RequestFilter extends
     }
 
     /**
-     * filter에서 jwt의 유효기간을 검증 하거나 유효한 토큰인 경우 토큰에 담긴 정보를 헤더에 담아서 라우팅 해주기 위한 메서드.
+     * filter에서 jwt의 유효기간을 검증 하거나 유효한 토큰인 경우 토큰에 담긴 정보를 헤더에 담는 필터링을 해주기 위한 메서드.
      *
-     * @param config
-     * @return
+     * @param config Filter에서 사용되는 필요한 설정을 담은 객체
+     * @return 요청에 대해 필터링을 하여 조건에 따라 분기결과 반환.
      */
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
 
             String accessToken = Objects.requireNonNull(
-                exchange.getRequest().getHeaders().get("X-AUTH-TOKEN")).get(0);
+                    exchange.getRequest().getHeaders().get("X-AUTH-TOKEN")).get(0);
 
             if (config.redisTemplate.opsForValue().get(accessToken) != null) {
                 throw new LogoutTokenRequestException();
@@ -69,10 +75,10 @@ public class RequestFilter extends
             }
 
             exchange.getRequest()
-                .mutate()
-                .header("X-AUTH-ID", payload.getIdentificationNumber().toString())
-                .header("X-AUTH-ROLE", roles)
-                .build();
+                    .mutate()
+                    .header("X-AUTH-ID", payload.getIdentificationNumber().toString())
+                    .header("X-AUTH-ROLE", roles)
+                    .build();
 
             return chain.filter(exchange);
 
