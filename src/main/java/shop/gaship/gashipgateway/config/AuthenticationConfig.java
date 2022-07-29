@@ -44,7 +44,7 @@ public class AuthenticationConfig {
     private String localKey;
 
     /**
-     * secure key 를 얻어온 후 Base64로 인코딩 한 것을 parsing 한 것, HS256 알고리즘을 가지는 SecretKeySpec을 만드는 메서드.
+     * secure key를 얻어온 후 Base64로 인코딩 한 것을 parsing 한 것, HS256 알고리즘을 가지는 SecretKeySpec을 만드는 메서드.
      *
      * @return SecretKeySpec 객체를 반환.
      */
@@ -71,6 +71,12 @@ public class AuthenticationConfig {
      *
      * @param keyId secure key를 얻기 위해 필요한 key id.
      * @return 원하는 secure key를 반환.
+     * @throws CertificateException 인증서의 encode 문제, 유효하지 않은 경우 예외 발생.
+     * @throws NoSuchAlgorithmException 암호 알고리즘이 요구되었음에도 불구하고, 현재의 환경에서는 사용 가능하지 않은 경우에 예외 발생.
+     * @throws KeyStoreException 키스토어 예외 발생.
+     * @throws UnrecoverableKeyException key를 복원할 수 없는 경우에 예외를 발생.
+     * @throws IOException I/O 오류가 발생하는 경우에 throw되는 예외 발생.
+     * @throws KeyManagementException 키 관리를 다루는 모든 작업에 대한 일반적인 키 관리 예외 발생.
      */
     String findSecretDataFromSecureKeyManager(String keyId)
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
