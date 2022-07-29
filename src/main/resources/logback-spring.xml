@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration scan="true" scanPeriod="60 seconds">
     <!--    Properties Setting      -->
-    <property name="LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>\
+    <property name="LOG_DIR" value="./log"/>
+    <property name="LOG_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
     <property name="LOG_CONSOLE_PATTERN" value="%d{HH:mm:ss.SSS} [%thread] %highlight(%-5level) %logger{36} - %msg%n"/>
     <!--    /Properties Setting      -->
 
