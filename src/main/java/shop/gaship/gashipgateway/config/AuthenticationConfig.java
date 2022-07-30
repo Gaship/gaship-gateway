@@ -1,7 +1,6 @@
 package shop.gaship.gashipgateway.config;
 
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.Key;
 import java.security.KeyManagementException;
@@ -21,8 +20,8 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 import shop.gaship.gashipgateway.config.dto.response.SecureKeyResponseDto;
 import shop.gaship.gashipgateway.config.exceptions.NoResponseDataException;
@@ -82,8 +81,9 @@ public class AuthenticationConfig {
             throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             UnrecoverableKeyException, IOException, KeyManagementException {
         KeyStore clientStore = KeyStore.getInstance("PKCS12");
-        clientStore.load(new FileInputStream(ResourceUtils.getFile("classpath:github-action.p12")),
-                localKey.toCharArray());
+        clientStore.load(
+            new ClassPathResource("github-action.p12").getInputStream(),
+            localKey.toCharArray());
 
         SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
         sslContextBuilder.setProtocol("TLS");
