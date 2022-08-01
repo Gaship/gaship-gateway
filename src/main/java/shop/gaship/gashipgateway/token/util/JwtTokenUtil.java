@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import shop.gaship.gashipgateway.token.store.Payload;
 
 /**
- * 설명작성란
+ * Jwt의 정보를 가져오기 위한 Util 클래스.
  *
  * @author 조재철
  * @since 1.0
@@ -23,9 +23,9 @@ public class JwtTokenUtil {
 
     private Jws<Claims> getClaims(String token) {
         return Jwts.parserBuilder()
-            .setSigningKey(createKey)
-            .build()
-            .parseClaimsJws(token);
+                .setSigningKey(createKey)
+                .build()
+                .parseClaimsJws(token);
     }
 
     /**

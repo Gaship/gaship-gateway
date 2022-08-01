@@ -1,7 +1,6 @@
 package shop.gaship.gashipgateway.config;
 
 import io.jsonwebtoken.SignatureAlgorithm;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.Key;
 import java.security.KeyManagementException;
@@ -21,12 +20,11 @@ import org.apache.http.ssl.SSLContextBuilder;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.client.RestTemplate;
 import shop.gaship.gashipgateway.config.dto.response.SecureKeyResponseDto;
 import shop.gaship.gashipgateway.config.exceptions.NoResponseDataException;
-
 
 /**
  * secure key와 관련된 설정을 위한 class.
@@ -45,24 +43,24 @@ public class AuthenticationConfig {
     private String localKey;
 
     /**
-     * secure key를 얻어온 후 Base64로 인코딩 한 것, HS256 알고리즘을 가지는 SecretKeySpec 객체를 반환하는 빈을 등록하는 메서드.
+     * secure key를 얻어온 후 Base64로 인코딩 한 것을 parsing 한 것, HS256 알고리즘을 가지는 SecretKeySpec을 만드는 메서드.
      *
-     * @return
+     * @return SecretKeySpec 객체를 반환.
      */
     @Bean
     public Key tokenKey() {
         String secretJwtKey;
 
-        try{
+        try {
             secretJwtKey = findSecretDataFromSecureKeyManager(jwtSecureKey);
-        } catch (CertificateException| NoSuchAlgorithmException| KeyStoreException |
-             UnrecoverableKeyException| IOException| KeyManagementException e){
+        } catch (CertificateException | NoSuchAlgorithmException | KeyStoreException
+                | UnrecoverableKeyException | IOException | KeyManagementException e) {
             throw new NoResponseDataException("NHN Secucre Excpetion");
         }
 
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
         byte[] apiKeySecretBytes =
-            DatatypeConverter.parseBase64Binary(secretJwtKey);
+                DatatypeConverter.parseBase64Binary(secretJwtKey);
 
         return new SecretKeySpec(apiKeySecretBytes, signatureAlgorithm.getJcaName());
     }
@@ -70,32 +68,42 @@ public class AuthenticationConfig {
     /**
      * nhn cloud key manager에 secure key를 얻기 위한 메서드.
      *
-     * @param keyId
-     * @return
+     * @param keyId secure key를 얻기 위해 필요한 key id.
+     * @return 원하는 secure key를 반환.
+     * @throws CertificateException 인증서의 encode 문제, 유효하지 않은 경우 예외 발생.
+     * @throws NoSuchAlgorithmException 암호 알고리즘이 요구되었음에도 불구하고, 현재의 환경에서는 사용 가능하지 않은 경우에 예외 발생.
+     * @throws KeyStoreException 키스토어 예외 발생.
+     * @throws UnrecoverableKeyException key를 복원할 수 없는 경우에 예외를 발생.
+     * @throws IOException I/O 오류가 발생하는 경우에 throw되는 예외 발생.
+     * @throws KeyManagementException 키 관리를 다루는 모든 작업에 대한 일반적인 키 관리 예외 발생.
      */
     String findSecretDataFromSecureKeyManager(String keyId)
-        throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
+            throws CertificateException, NoSuchAlgorithmException, KeyStoreException,
             UnrecoverableKeyException, IOException, KeyManagementException {
-            KeyStore clientStore = KeyStore.getInstance("PKCS12");
-            clientStore.load(new FileInputStream(ResourceUtils.getFile("classpath:github-action.p12")), localKey.toCharArray());
+        KeyStore clientStore = KeyStore.getInstance("PKCS12");
+        clientStore.load(
+            new ClassPathResource("github-action.p12").getInputStream(),
+            localKey.toCharArray());
 
-            SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
-            sslContextBuilder.setProtocol("TLS");
-            sslContextBuilder.loadKeyMaterial(clientStore, localKey.toCharArray());
-            sslContextBuilder.loadTrustMaterial(new TrustSelfSignedStrategy());
+        SSLContextBuilder sslContextBuilder = new SSLContextBuilder();
+        sslContextBuilder.setProtocol("TLS");
+        sslContextBuilder.loadKeyMaterial(clientStore, localKey.toCharArray());
+        sslContextBuilder.loadTrustMaterial(new TrustSelfSignedStrategy());
 
-            SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(sslContextBuilder.build());
-            CloseableHttpClient httpClient = HttpClients.custom()
+        SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+                sslContextBuilder.build());
+        CloseableHttpClient httpClient = HttpClients.custom()
                 .setSSLSocketFactory(sslConnectionSocketFactory)
                 .build();
-            HttpComponentsClientHttpRequestFactory requestFactory = new HttpComponentsClientHttpRequestFactory(httpClient);
+        HttpComponentsClientHttpRequestFactory requestFactory =
+                new HttpComponentsClientHttpRequestFactory(httpClient);
 
-            return Objects.requireNonNull(new RestTemplate(requestFactory)
-                    .getForEntity(url + "/keymanager/v1.0/appkey/{appkey}/secrets/{keyid}",
-                        SecureKeyResponseDto.class,
-                        this.appkey,
-                        keyId)
-                    .getBody())
+        return Objects.requireNonNull(new RestTemplate(requestFactory)
+                        .getForEntity(url + "/keymanager/v1.0/appkey/{appkey}/secrets/{keyid}",
+                                SecureKeyResponseDto.class,
+                                this.appkey,
+                                keyId)
+                        .getBody())
                 .getBody()
                 .getSecret();
     }

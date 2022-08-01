@@ -15,6 +15,12 @@ public class SecureKeyResponseDto {
 
     private Body body;
 
+    /**
+     * SecureKey Field 중 Header에 대한 클래스.
+     *
+     * @author 조재철
+     * @since 1.0
+     */
     @Getter
     public static class Header {
         private Integer resultCode;
@@ -22,6 +28,12 @@ public class SecureKeyResponseDto {
         private Boolean isSuccessful;
     }
 
+    /**
+     * SecureKey에 Field 중 Body에 대한 클래스.
+     *
+     * @author 조재철
+     * @since 1.0
+     */
     @Getter
     public static class Body {
         private String secret;
