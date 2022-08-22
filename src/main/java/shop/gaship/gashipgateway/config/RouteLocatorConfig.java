@@ -26,6 +26,7 @@ public class RouteLocatorConfig {
     private String shoppingmall;
     private String payments;
     private String schedulers;
+    private String coupons;
 
     public String getAuth() {
         return auth;
@@ -59,6 +60,14 @@ public class RouteLocatorConfig {
         this.schedulers = schedulers;
     }
 
+    public String getCoupons() {
+        return coupons;
+    }
+
+    public void setCoupons(String coupons) {
+        this.coupons = coupons;
+    }
+
     /**
      * gateway로 들어온 요청을 라우팅 해주거나, 필터를 통해 필터링을 하기 위한 메서드.
      *
@@ -70,24 +79,26 @@ public class RouteLocatorConfig {
      */
     @Bean
     public RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder,
-            RequestFilter requestFilter, RedisTemplate redisTemplate, JwtTokenUtil jwtTokenUtil) {
+        RequestFilter requestFilter, RedisTemplate redisTemplate, JwtTokenUtil jwtTokenUtil) {
         return routeLocatorBuilder.routes()
-                .route(p -> p.path("/securities/issue-token")
-                        .uri(auth))
-                .route(p -> p.path("/securities/logout")
-                        .uri(auth))
-                .route(p -> p.path("/securities/**")
-                        .filters(f -> f.filter(
-                                requestFilter.apply(
-                                        new RequestFilter.Config(redisTemplate, jwtTokenUtil))))
-                        .uri(auth))
-                .route(p -> p.path("/payments/**")
-                        .uri(payments))
-                .route(p -> p.path("/schedulers/**")
-                        .uri(schedulers))
-                .route(p -> p.path("/**")
-                        .uri(shoppingmall))
-                .build();
+                                  .route(p -> p.path("/securities/issue-token")
+                                               .uri(auth))
+                                  .route(p -> p.path("/securities/logout")
+                                               .uri(auth))
+                                  .route(p -> p.path("/securities/**")
+                                               .filters(f -> f.filter(
+                                                   requestFilter.apply(
+                                                       new RequestFilter.Config(redisTemplate, jwtTokenUtil))))
+                                               .uri(auth))
+                                  .route(p -> p.path("/payments/**")
+                                               .uri(payments))
+                                  .route(p -> p.path("/schedulers/**")
+                                               .uri(schedulers))
+                                  .route(p -> p.path("/api/coupons/**")
+                                               .uri(coupons))
+                                  .route(p -> p.path("/**")
+                                               .uri(shoppingmall))
+                                  .build();
     }
 
     /**
