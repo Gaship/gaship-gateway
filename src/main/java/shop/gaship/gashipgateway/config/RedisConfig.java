@@ -67,7 +67,6 @@ public class RedisConfig {
         this.database = database;
     }
 
-
     /**
      * redis 연동을 위한 연결 설정을 한 Lettuce를 반환하는 빈등록 하는 메서드.
      *

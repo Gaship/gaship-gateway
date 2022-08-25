@@ -81,24 +81,26 @@ public class RouteLocatorConfig {
     public RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder,
         RequestFilter requestFilter, RedisTemplate redisTemplate, JwtTokenUtil jwtTokenUtil) {
         return routeLocatorBuilder.routes()
-                                  .route(p -> p.path("/securities/issue-token")
-                                               .uri(auth))
-                                  .route(p -> p.path("/securities/logout")
-                                               .uri(auth))
-                                  .route(p -> p.path("/securities/**")
-                                               .filters(f -> f.filter(
-                                                   requestFilter.apply(
-                                                       new RequestFilter.Config(redisTemplate, jwtTokenUtil))))
-                                               .uri(auth))
-                                  .route(p -> p.path("/payments/**")
-                                               .uri(payments))
-                                  .route(p -> p.path("/schedulers/**")
-                                               .uri(schedulers))
-                                  .route(p -> p.path("/api/coupons/**")
-                                               .uri(coupons))
-                                  .route(p -> p.path("/**")
-                                               .uri(shoppingmall))
-                                  .build();
+                .route(p -> p.path("/securities/issue-token")
+                        .uri(auth))
+                .route(p -> p.path("/securities/verify/email/**")
+                        .uri(auth))
+                .route(p -> p.path("/securities/logout")
+                    .uri(auth))
+                .route(p -> p.path("/securities/**")
+                        .filters(f -> f.filter(
+                                requestFilter.apply(
+                                        new RequestFilter.Config(redisTemplate, jwtTokenUtil))))
+                        .uri(auth))
+                .route(p -> p.path("/payments/**")
+                        .uri(payments))
+                .route(p -> p.path("/schedulers/**")
+                        .uri(schedulers))
+                .route(p -> p.path("/api/coupons/**")
+                        .uri(coupons))
+                .route(p -> p.path("/**")
+                        .uri(shoppingmall))
+                .build();
     }
 
     /**
