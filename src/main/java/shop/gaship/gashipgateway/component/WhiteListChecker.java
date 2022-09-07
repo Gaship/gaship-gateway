@@ -8,6 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
+ * 요청한 ip 가 지정한 white list 에 존재하는지 판단하는 클래스 입니다.
+ *
  * @author : 조재철
  * @since 1.0
  */
@@ -22,14 +24,18 @@ public class WhiteListChecker {
         this.whitelist = whitelist;
     }
 
+    /**
+     * white list 에 존재하는지 하지 않는지 판단하여 존재하지 않을 시 통과를 막기 위한 메서드 입니다.
+     *
+     * @param remoteAddress 요청을 한 곳의 address 입니다.
+     * @return 요청한 address 가 white list 에 포함되면 false, 포함되지 않으면 true를 반환합니다.
+     */
     public boolean blocked(String remoteAddress) {
         StringTokenizer stringTokenizer = new StringTokenizer(whitelist, ",");
 
         List<String> remoteAddressWhiteList = new ArrayList<>();
 
         while (stringTokenizer.hasMoreTokens()) {
-            log.warn("remote address : {}", remoteAddress);
-
             remoteAddressWhiteList.add(stringTokenizer.nextToken());
         }
 
