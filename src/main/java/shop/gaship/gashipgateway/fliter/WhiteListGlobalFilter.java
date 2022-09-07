@@ -14,6 +14,8 @@ import reactor.core.publisher.Mono;
 import shop.gaship.gashipgateway.component.WhiteListChecker;
 
 /**
+ * 요청한 ip 가 white list 에 존재하는지 판단하는 글로벌 필터 입니다.
+ *
  * @author : 조재철
  * @since 1.0
  */
