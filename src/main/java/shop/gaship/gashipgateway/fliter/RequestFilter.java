@@ -23,7 +23,7 @@ import shop.gaship.gashipgateway.token.util.JwtTokenUtil;
 @Slf4j
 @Component
 public class RequestFilter extends
-        AbstractGatewayFilterFactory<Config> {
+    AbstractGatewayFilterFactory<Config> {
 
     /**
      * Filter에서 사용되는 필요한 설정을 담은 클래스.
@@ -48,17 +48,21 @@ public class RequestFilter extends
     }
 
     /**
-     * filter에서 jwt의 유효기간을 검증 하거나 유효한 토큰인 경우 토큰에 담긴 정보를 헤더에 담는 필터링을 해주기 위한 메서드.
+     * filter 에서 jwt 의 유효기간을 검증 하거나 유효한 토큰인 경우 토큰에 담긴 정보를 헤더에 담는 필터링을 해주기 위한 메서드.
      *
-     * @param config Filter에서 사용되는 필요한 설정을 담은 객체
+     * @param config Filter 에서 사용되는 필요한 설정을 담은 객체
      * @return 요청에 대해 필터링을 하여 조건에 따라 분기결과 반환.
      */
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
 
-            String accessToken = Objects.requireNonNull(
-                    exchange.getRequest().getHeaders().get("X-AUTH-TOKEN")).get(0);
+            if (exchange.getRequest().getHeaders().get("X-AUTH-TOKEN") == null) {
+                return chain.filter(exchange);
+            }
+
+            String accessToken =
+                exchange.getRequest().getHeaders().get("X-AUTH-TOKEN").get(0);
 
             if (config.redisTemplate.opsForValue().get(accessToken) != null) {
                 throw new LogoutTokenRequestException();
@@ -66,18 +70,10 @@ public class RequestFilter extends
 
             Payload payload = config.jwtTokenUtil.getPayloadFromToken(accessToken);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            String roles = null;
-            try {
-                roles = objectMapper.writeValueAsString(payload.getRole());
-            } catch (JsonProcessingException e) {
-                throw new CustomJsonProcessingException(e.getMessage());
-            }
-
             exchange.getRequest()
                     .mutate()
                     .header("X-AUTH-ID", payload.getIdentificationNumber().toString())
-                    .header("X-AUTH-ROLE", roles)
+                    .header("X-AUTH-ROLE", payload.getRole())
                     .build();
 
             return chain.filter(exchange);
