@@ -15,5 +15,5 @@ import lombok.Getter;
 public class Payload {
 
     private Long identificationNumber;
-    private List<String> role;
+    private String role;
 }

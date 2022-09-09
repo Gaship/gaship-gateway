@@ -36,7 +36,7 @@ public class JwtTokenUtil {
      */
     public Payload getPayloadFromToken(String token) {
         Long identificationNumber = getClaims(token).getBody().get("id", Long.class);
-        List<String> role = getClaims(token).getBody().get("role", List.class);
+        String role = getClaims(token).getBody().get("role", String.class);
         return new Payload(identificationNumber, role);
     }
 }

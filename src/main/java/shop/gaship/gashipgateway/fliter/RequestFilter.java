@@ -57,8 +57,12 @@ public class RequestFilter extends
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
 
-            String accessToken = Objects.requireNonNull(
-                exchange.getRequest().getHeaders().get("X-AUTH-TOKEN")).get(0);
+            if (exchange.getRequest().getHeaders().get("X-AUTH-TOKEN") == null) {
+                return chain.filter(exchange);
+            }
+
+            String accessToken =
+                exchange.getRequest().getHeaders().get("X-AUTH-TOKEN").get(0);
 
             if (config.redisTemplate.opsForValue().get(accessToken) != null) {
                 throw new LogoutTokenRequestException();
@@ -66,18 +70,10 @@ public class RequestFilter extends
 
             Payload payload = config.jwtTokenUtil.getPayloadFromToken(accessToken);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            String roles = null;
-            try {
-                roles = objectMapper.writeValueAsString(payload.getRole());
-            } catch (JsonProcessingException e) {
-                throw new CustomJsonProcessingException(e.getMessage());
-            }
-
             exchange.getRequest()
                     .mutate()
                     .header("X-AUTH-ID", payload.getIdentificationNumber().toString())
-                    .header("X-AUTH-ROLE", roles)
+                    .header("X-AUTH-ROLE", payload.getRole())
                     .build();
 
             return chain.filter(exchange);
