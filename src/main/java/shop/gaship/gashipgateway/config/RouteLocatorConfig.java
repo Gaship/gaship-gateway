@@ -1,9 +1,12 @@
 package shop.gaship.gashipgateway.config;
 
+import java.util.function.Function;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.cloud.gateway.route.RouteLocator;
+import org.springframework.cloud.gateway.route.builder.GatewayFilterSpec;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
+import org.springframework.cloud.gateway.route.builder.UriSpec;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -81,26 +84,34 @@ public class RouteLocatorConfig {
     public RouteLocator routeLocator(RouteLocatorBuilder routeLocatorBuilder,
         RequestFilter requestFilter, RedisTemplate redisTemplate, JwtTokenUtil jwtTokenUtil) {
         return routeLocatorBuilder.routes()
-                .route(p -> p.path("/securities/issue-token")
-                        .uri(auth))
-                .route(p -> p.path("/securities/verify/email/**")
-                        .uri(auth))
-                .route(p -> p.path("/securities/logout")
-                    .uri(auth))
-                .route(p -> p.path("/securities/**")
-                        .filters(f -> f.filter(
-                                requestFilter.apply(
-                                        new RequestFilter.Config(redisTemplate, jwtTokenUtil))))
-                        .uri(auth))
-                .route(p -> p.path("/payments/**")
-                        .uri(payments))
-                .route(p -> p.path("/schedulers/**")
-                        .uri(schedulers))
-                .route(p -> p.path("/api/coupons/**")
-                        .uri(coupons))
-                .route(p -> p.path("/**")
-                        .uri(shoppingmall))
-                .build();
+                                  .route(p -> p.path("/securities/issue-token")
+                                               .uri(auth))
+                                  .route(p -> p.path("/securities/verify/email/**")
+                                               .uri(auth))
+                                  .route(p -> p.path("/securities/logout")
+                                               .uri(auth))
+                                  .route(p -> p.path("/securities/**")
+                                               .filters(
+                                                   decomposeTokenFilter(requestFilter, redisTemplate, jwtTokenUtil))
+                                               .uri(auth))
+                                  .route(p -> p.path("/payments/**")
+                                               .uri(payments))
+                                  .route(p -> p.path("/schedulers/**")
+                                               .uri(schedulers))
+                                  .route(p -> p.path("/api/coupons/**")
+                                               .uri(coupons))
+                                  .route(p -> p.path("/**")
+                                               .filters(
+                                                   decomposeTokenFilter(requestFilter, redisTemplate, jwtTokenUtil))
+                                               .uri(shoppingmall))
+                                  .build();
+    }
+
+    private Function<GatewayFilterSpec, UriSpec> decomposeTokenFilter(RequestFilter requestFilter,
+        RedisTemplate redisTemplate, JwtTokenUtil jwtTokenUtil) {
+        return f -> f.filter(
+            requestFilter.apply(
+                new RequestFilter.Config(redisTemplate, jwtTokenUtil)));
     }
 
     /**
