@@ -86,6 +86,8 @@ public class RouteLocatorConfig {
         return routeLocatorBuilder.routes()
                                   .route(p -> p.path("/securities/issue-token")
                                                .uri(auth))
+                                  .route(p -> p.path("/securities/reissue-token")
+                                               .uri(auth))
                                   .route(p -> p.path("/securities/verify/email/**")
                                                .uri(auth))
                                   .route(p -> p.path("/securities/logout")
