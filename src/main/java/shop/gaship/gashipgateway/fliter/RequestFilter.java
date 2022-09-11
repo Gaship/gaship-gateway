@@ -1,15 +1,11 @@
 package shop.gaship.gashipgateway.fliter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import shop.gaship.gashipgateway.fliter.RequestFilter.Config;
-import shop.gaship.gashipgateway.fliter.exception.CustomJsonProcessingException;
 import shop.gaship.gashipgateway.fliter.exception.LogoutTokenRequestException;
 import shop.gaship.gashipgateway.token.store.Payload;
 import shop.gaship.gashipgateway.token.util.JwtTokenUtil;
@@ -43,7 +39,7 @@ public class RequestFilter extends
     }
 
 
-    public RequestFilter(RedisTemplate redisTemplate, JwtTokenUtil jwtTokenUtil) {
+    public RequestFilter() {
         super(Config.class);
     }
 
@@ -62,7 +58,15 @@ public class RequestFilter extends
             }
 
             String accessToken =
-                exchange.getRequest().getHeaders().get("X-AUTH-TOKEN").get(0);
+                    exchange.getRequest().getHeaders()
+                        .get("X-AUTH-TOKEN")
+                        .stream()
+                        .findFirst()
+                        .orElse(null);
+
+            if (accessToken == null) {
+                return chain.filter(exchange);
+            }
 
             if (config.redisTemplate.opsForValue().get(accessToken) != null) {
                 throw new LogoutTokenRequestException();
